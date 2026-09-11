@@ -1,19 +1,38 @@
 from datetime import datetime
-import os
+
+import requests
+
+
+API_URL = "https://jsonplaceholder.typicode.com/posts/1"
 
 def generate_log(data):
-    # TODO: Implement log generation logic
+    """Write log entries to today's log file and return its filename."""
+    if not isinstance(data, list):
+        raise ValueError("data must be a list")
 
-    # STEP 1: Validate input
-    # Hint: Check if data is a list
+    filename = f"log_{datetime.now().strftime('%Y%m%d')}.txt"
+    with open(filename, "w", encoding="utf-8") as file:
+        for entry in data:
+            file.write(f"{entry}\n")
 
-    # STEP 2: Generate a filename with today's date (e.g., "log_20250408.txt")
-    # Hint: Use datetime.now().strftime("%Y%m%d")
+    print(f"Log written to {filename}")
+    return filename
 
-    # STEP 3: Write the log entries to a file using File I/O
-    # Use a with open() block and write each line from the data list
-    # Example: file.write(f"{entry}\n")
 
-    # STEP 4: Print a confirmation message with the filename
+def fetch_data(url=API_URL):
+    """Fetch a JSON post, returning an empty dictionary on HTTP failure."""
+    response = requests.get(url, timeout=10)
+    if response.status_code == 200:
+        return response.json()
+    return {}
 
-    pass
+
+def main():
+    post = fetch_data()
+    title = post.get("title", "No title found")
+    print("Fetched Post Title:", title)
+    generate_log(["User logged in", "User updated profile", "Report exported"])
+
+
+if __name__ == "__main__":
+    main()
